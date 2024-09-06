@@ -4,5 +4,7 @@ const savedTranslationsCtrl = require("../controller/savedTranslations.controlle
 
 savedTranslationsRouter.post('/inputTranslation', savedTranslationsCtrl.inputTranslation);
 savedTranslationsRouter.get('/allTranslations', savedTranslationsCtrl.getAllTranslations);
+savedTranslationsRouter.delete('/deleteSavedTranslation/:id', savedTranslationsCtrl.deleteSavedTranslations);
+savedTranslationsRouter.patch('/updateTranslation/:id', savedTranslationsCtrl.updateTranslation);
 
 module.exports = savedTranslationsRouter;
