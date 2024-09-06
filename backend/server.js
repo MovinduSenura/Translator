@@ -20,3 +20,9 @@ app.listen(PORT, () => {
     console.log(`🚀 :: Server is up and running on PORT: ${PORT}`);
     ConnectDB();
 })
+
+//routes
+const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
+
+//API Middleware
+app.use(savedTranslationsRoutes);
