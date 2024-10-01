@@ -23,6 +23,11 @@ app.listen(PORT, () => {
 
 //routes
 const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
+const feedbackRoutes = require('./routes/feedback.routes');
+const userRoutes = require('./routes/user.routes');//user
+
 
 //API Middleware
 app.use(savedTranslationsRoutes);
+app.use(feedbackRoutes);
+app.use(userRoutes);//user
