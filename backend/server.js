@@ -41,3 +41,10 @@ const translationHistoryRoutes = require('./routes/translationHistory.routes');
 // API Middleware
 app.use(savedTranslationsRoutes);
 app.use(translationHistoryRoutes);
+const feedbackRoutes = require('./routes/feedback.routes');
+const userRoutes = require('./routes/user.routes');//user
+
+//API Middleware
+app.use(savedTranslationsRoutes);
+app.use(feedbackRoutes);
+app.use(userRoutes);//user
