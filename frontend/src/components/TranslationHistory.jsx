@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import NotoSansSinhala from '../fonts/NotoSansSinhala-Regular.ttf';
+// import NotoSansSinhala from '../fonts/NotoSansSinhala-Regular.ttf';
 
 export default function TranslationHistory() {
   const [translations, setTranslations] = useState([]);
@@ -27,32 +27,35 @@ export default function TranslationHistory() {
   };
 
   // Function to generate PDF
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+  const handleDownloadPDF = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/generateHistoryReport",
+        
+      );
 
-    // Check if translations are available
-    if (translations.length === 0) {
-        doc.text('No translations available', 14, 22);
-        doc.save('translation-history-report.pdf');
-        return;
+      const { filepath } = response.data;
+
+      // Create a new <a> element to simulate a download link
+      const link = document.createElement("a");
+      // Set the href attribute of the link to the filepath of the generated invoice
+      link.href = filepath;
+      // Set the "download" attribute to specify the default file name for the downloaded file
+      link.setAttribute("download", "invoice.pdf");
+      // Append the link to the document body
+      document.body.appendChild(link);
+
+      // Simulate a click on the link to trigger the download
+      link.click();
+
+       // Remove the link from the document body after the download is complete
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading invoice:", error.message);
     }
+  };
 
-    // Title
-    doc.text('Translation History Report', 14, 22);
-
-    // Adding table using autoTable
-    doc.autoTable({
-        head: [['INPUT', 'OUTPUT']],
-        body: translations.map((translation) => [
-            translation.english,
-            translation.sinhala
-        ]),
-        startY: 30,
-    });
-
-    // Save the document
-    doc.save('Translation History Report.pdf');
-};
 
 
   return (
