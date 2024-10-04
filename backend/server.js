@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 require("dotenv").config();
 const app = express();
 
-//MongoDB Connection
+// MongoDB Connection
 const { ConnectDB } = require("./utils/connection");
 
 app.use(express.json());
@@ -19,12 +19,12 @@ const PORT = process.env.PORT || 8070;
 app.listen(PORT, () => {
     console.log(`🚀 :: Server is up and running on PORT: ${PORT}`);
     ConnectDB();
-})
+});
 
-//routes
+// Routes
 const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
 const translationHistoryRoutes = require('./routes/translationHistory.routes');
 
-//API Middleware
+// API Middleware
 app.use(savedTranslationsRoutes);
 app.use(translationHistoryRoutes);

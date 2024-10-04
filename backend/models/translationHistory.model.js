@@ -1,20 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const translationHistorySchema = mongoose.Schema({
-    translation: {
-        type: String,
-        required: true,
-        trim: true,
-    },
+    english: { type: String, required: true, trim: true },
+    sinhala: { type: String, required: true, trim: true },
+    createdAt: { type: Date, default: Date.now }  // Optional: To track when the translation was saved
+});
 
-    // convertedTranslation: {
-    //     type: String,
-    //     required: true,
-    //     trim: true,
-    // },
-     
-})
-
-const translationHistoryModel = mongoose.model("translationHistory",translationHistorySchema);
+const translationHistoryModel = mongoose.model('TranslationHistory', translationHistorySchema);
 
 module.exports = translationHistoryModel;

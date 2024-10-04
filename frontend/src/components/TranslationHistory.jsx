@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import NotoSansSinhala from '../fonts/NotoSansSinhala-Regular.ttf';
 
 export default function TranslationHistory() {
   const [translations, setTranslations] = useState([]);
@@ -29,31 +30,39 @@ export default function TranslationHistory() {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
+    // Check if translations are available
+    if (translations.length === 0) {
+        doc.text('No translations available', 14, 22);
+        doc.save('translation-history-report.pdf');
+        return;
+    }
+
     // Title
     doc.text('Translation History Report', 14, 22);
 
     // Adding table using autoTable
     doc.autoTable({
-      head: [['Input', 'Output']],
-      body: translations.map((translation) => [
-        translation.translation, // Input
-        translation.output, // Output (update this with the correct key)
-      ]),
-      startY: 30, // Adjust the position of the table
+        head: [['INPUT', 'OUTPUT']],
+        body: translations.map((translation) => [
+            translation.english,
+            translation.sinhala
+        ]),
+        startY: 30,
     });
 
-    // Save the PDF
+    // Save the document
     doc.save('translation-history-report.pdf');
-  };
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-center">Translation History</h2>
+          <h2 className="text-2xl font-bold">Translation History</h2>
           <button
             onClick={handleGoBack}
-            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-1"
+            className="bg-gray-500 text-white py-2 px-4 rounded-md"
           >
             Go Back
           </button>
@@ -62,26 +71,26 @@ export default function TranslationHistory() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Input</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Output</th>
+                <th className="px-6 py-3 text-left text-xs font-medium">INPUT</th>
+                <th className="px-6 py-3 text-left text-xs font-medium">OUTPUT</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {translations.map((translation) => (
                 <tr key={translation._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.output}</td>
+                  <td className="px-6 py-4">{translation.english}</td>
+                  <td className="px-6 py-4">{translation.sinhala}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <button
-            onClick={handleDownloadPDF}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 float-right mr-1 mb-1"
-          >
-            Download History Report
-          </button>
         </div>
+        <button
+          onClick={handleDownloadPDF}
+          className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-md"
+        >
+          Download History Report
+        </button>
       </div>
     </div>
   );

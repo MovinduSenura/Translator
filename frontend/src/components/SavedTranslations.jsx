@@ -54,14 +54,15 @@ export default function SavedTranslations() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Input</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Output</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Input</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black tracking-wider">Output</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {translations.map((translation) => (
                 <tr key={translation._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation.english}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation.sinhala}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end space-x-2">
                       <button

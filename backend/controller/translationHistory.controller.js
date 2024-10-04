@@ -4,12 +4,17 @@ const inputTranslation = async (req, res) => {
     const { translation } = req.body;
 
     try {
-        if (!translation) {
-            return res.status(400).send({ message: "translation is required" });
+        if (!translation || !translation.english || !translation.sinhala) {
+            return res.status(400).send({ message: "Both English and Sinhala translations are required" });
         }
-        const user = new translationHistoryModel({ translation });
-        const data = await user.save();
-        res.send({ message: "Translation input successful!", data });
+
+        const newTranslation = new translationHistoryModel({
+            english: translation.english,
+            sinhala: translation.sinhala,
+        });
+
+        const savedTranslation = await newTranslation.save();
+        res.status(200).send({ message: "Translation saved successfully!", data: savedTranslation });
     } catch (err) {
         console.error("Translation input error:", err.message);
         res.status(500).send({ message: "An error occurred while inputting translation." });
@@ -17,25 +22,19 @@ const inputTranslation = async (req, res) => {
 }
 
 const getAllTranslations = async (req, res) => {
-
-    try{
-
-        // Fetch all translations
+    try {
         const allTranslations = await translationHistoryModel.find();
-
-        return res.status(200).send({
+        res.status(200).send({
             status: true,
             message: "✨ :: All translations are fetched",
             AllTranslations: allTranslations,
-        })
-
-    }catch(err){
-        return res.status(500).send({
+        });
+    } catch (err) {
+        res.status(500).send({
             status: false,
             message: err.message,
-        })
+        });
     }
-
 }
 
 module.exports = {
