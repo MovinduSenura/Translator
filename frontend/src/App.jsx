@@ -1,6 +1,10 @@
 import React from "react";
-// import TranslationPage from "./components/TranslationPage";
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
+// import TranslationPage from "./components/TranslationPage";
+import SavedTranslations from "./components/SavedTranslations";
+import TranslationHistory from "./components/TranslationHistory";
+import UpdateTranslationPage from "./components/UpdateTranslationPage";
+import TranslatorPg from "./components/TranslatorPg";
 
 function App() {
 
@@ -8,7 +12,12 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          {/* <Route path='/' element={<TranslationPage />} /> */}
+          <Route path='/' element={<TranslatorPg />} />
+          {/* <Route path='/translationPage' element={<TranslationPage />} /> */}
+          <Route path='/savedTranslations' element={<SavedTranslations />} />
+          <Route path='/translationHistory' element={<TranslationHistory />} />
+          <Route path='/updateTranslationPage/:id' element={<UpdateTranslationPage />} />
+          {/* <Route path='/translatorPg' element={<TranslatorPg />} /> */}
         </Routes>
       </BrowserRouter>
     </>
