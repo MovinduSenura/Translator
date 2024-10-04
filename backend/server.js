@@ -20,3 +20,12 @@ app.listen(PORT, () => {
     console.log(`🚀 :: Server is up and running on PORT: ${PORT}`);
     ConnectDB();
 })
+
+
+//routes
+const adminRoutes = require('./routes/admin.routes');
+const wordslistRoutes = require('./routes/wordslist.routes');
+
+//API Middleware
+app.use(adminRoutes);
+app.use(wordslistRoutes);
