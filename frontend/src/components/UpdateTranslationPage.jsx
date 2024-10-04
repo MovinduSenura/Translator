@@ -86,6 +86,16 @@ export default function UpdateTranslationPage() {
     }
   };
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleSpeech = (text, lang) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    speechSynthesis.speak(utterance);
+  };
+
   return (
     <div className="translator-page">
       <div className="container">
@@ -108,6 +118,10 @@ export default function UpdateTranslationPage() {
           </div>
           <ul className="controls">
             <li className="row from">
+            <div className="icons">
+                <i className="fas fa-volume-up" onClick={() => handleSpeech(fromText, fromLang)}></i>
+                <i className="fas fa-copy" onClick={() => handleCopy(fromText)}></i>
+              </div>
               <select value={fromLang} onChange={(e) => setFromLang(e.target.value)}>
                 {Object.entries(Countries).map(([code, name]) => (
                   <option key={code} value={code}>
@@ -132,6 +146,10 @@ export default function UpdateTranslationPage() {
                   </option>
                 ))}
               </select>
+              <div className="icons">
+                <i className="fas fa-volume-up" onClick={() => handleSpeech(toText, toLang)}></i>
+                <i className="fas fa-copy" onClick={() => handleCopy(toText)}></i>
+              </div>
             </li>
           </ul>
         </div>
