@@ -51,7 +51,7 @@ export default function TranslationHistory() {
     });
 
     // Save the document
-    doc.save('translation-history-report.pdf');
+    doc.save('Translation History Report.pdf');
 };
 
 
@@ -60,6 +60,12 @@ export default function TranslationHistory() {
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Translation History</h2>
+          <button
+          onClick={handleDownloadPDF}
+          className="bg-green-600 text-white py-2 px-4 ml-[840px] rounded-md"
+        >
+          Download History Report
+        </button>
           <button
             onClick={handleGoBack}
             className="bg-gray-500 text-white py-2 px-4 rounded-md"
@@ -85,12 +91,12 @@ export default function TranslationHistory() {
             </tbody>
           </table>
         </div>
-        <button
+        {/* <button
           onClick={handleDownloadPDF}
           className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-md"
         >
           Download History Report
-        </button>
+        </button> */}
       </div>
     </div>
   );
