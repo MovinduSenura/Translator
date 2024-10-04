@@ -1,15 +1,57 @@
 const Admin = require("../models/admin.model");
+const nodemailer = require('nodemailer');
 
-//add new admin details
+// Email sending setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'translatortest95@gmail.com', // Your email address
+    pass: 'vgvb wdto jcuv swyp',       // Your email password (Note: Use an app-specific password if 2FA is enabled)
+  },
+});
+
+// Add new admin details
 const createAdmin = async (req, res) => {
-  console.log("Received admin data :", req.body);
+  console.log("Received admin data:", req.body);
 
   const newAdmin = new Admin(req.body);
 
   try {
     await newAdmin.save();
 
-    res.status(201).json({ message: "Admin Created Successfully" });
+    // Send email to new admin
+    const mailOptions = {
+      from: 'translatortest95@gmail.com',  // Sender address
+      to: newAdmin.adminEmail,            // Receiver (new admin's email)
+      subject: 'Welcome to Translator App - Admin Credentials',
+      text: `
+        Hello ${newAdmin.adminName},
+
+        You have been successfully added as an Admin for the Translator App.
+
+        Here are your login details:
+        Username: ${newAdmin.username}
+        Password: ${newAdmin.password}
+
+        Please keep this information safe and secure.
+
+        Welcome aboard!
+
+        Regards,
+        Translator App Team - CODEWAVES
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ message: "Admin Created, but email sending failed." });
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.status(201).json({ message: "Admin Created Successfully and Email sent." });
+      }
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Admin Creation Failed" });
