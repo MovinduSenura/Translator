@@ -44,7 +44,7 @@ const wordslistRoutes = require('./routes/wordslist.routes');
 app.use(adminRoutes);
 app.use(wordslistRoutes);
 
-});
+
 
 // Routes
 const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
