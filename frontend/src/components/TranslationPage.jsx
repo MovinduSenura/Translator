@@ -22,6 +22,17 @@ export default function TranslationPage() {
     }
   };
 
+  const handleSubmit2 = async () => {
+    try {
+      await axios.post('http://localhost:8000/inputTranslation2', { translation: text });
+      alert('Translation Completed');
+      fetchTranslations(); // Fetch translations after successful submission
+    } catch (error) {
+      console.error('Error sending text:', error);
+      alert('Failed to send text.');
+    }
+  };
+
   const handleClear = () => {
     setText('');
   };
@@ -35,8 +46,21 @@ export default function TranslationPage() {
     }
   };
 
+  const fetchTranslations2 = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/allTranslations2');
+      setTranslations(response.data.AllTranslations);
+    } catch (error) {
+      console.error('Error fetching translations:', error);
+    }
+  };
+
   const navigateToSavedTranslations = () => {
     navigate('/savedTranslations'); // Navigate to saved translations page
+  };
+
+  const navigateToHistory = () => {
+    navigate('/translationHistory'); // Navigate to saved translations page
   };
 
   return (
@@ -63,9 +87,10 @@ export default function TranslationPage() {
               <div className="flex space-x-2">
                 {/* Translate Button (Unfunctional) */}
                 <button
-                  type="button"
+                  onClick={handleSubmit2}
+                  // type="button"
                   className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  disabled
+                  // disabled
                 >
                   Translate
                 </button>
@@ -123,6 +148,12 @@ export default function TranslationPage() {
             className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
           >
             Saved Translations
+          </button>
+          <button
+            onClick={navigateToHistory}
+            className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
+          >
+            Translation History
           </button>
         </div>
       </div>
