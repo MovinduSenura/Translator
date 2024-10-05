@@ -18,14 +18,14 @@ app.use('/docs', express.static(path.join(__dirname, 'docs')));
 app.use(cors());
 
 // Set up CORS configuration
-const corsOptions = {
-    origin: '*', // Replace with your frontend domain
-};
+// const corsOptions = {
+//     origin: '*', // Replace with your frontend domain
+// };
 
-// Specific CORS configuration for the PDF file endpoint
-app.get('/menu/generate-menu-invoice', cors(corsOptions), async (req, res) => {
-    // Your code to generate and serve the PDF file
-});
+// // Specific CORS configuration for the PDF file endpoint
+// app.get('/menu/generate-menu-invoice', cors(corsOptions), async (req, res) => {
+//     // Your code to generate and serve the PDF file
+// });
 
 const PORT = process.env.PORT || 8070;
 
