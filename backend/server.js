@@ -32,7 +32,19 @@ const PORT = process.env.PORT || 8070;
 app.listen(PORT, () => {
     console.log(`🚀 :: Server is up and running on PORT: ${PORT}`);
     ConnectDB();
-});
+
+})
+
+
+//routes
+const adminRoutes = require('./routes/admin.routes');
+const wordslistRoutes = require('./routes/wordslist.routes');
+
+//API Middleware
+app.use(adminRoutes);
+app.use(wordslistRoutes);
+
+
 
 // Routes
 const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
@@ -48,3 +60,4 @@ const userRoutes = require('./routes/user.routes');//user
 app.use(savedTranslationsRoutes);
 app.use(feedbackRoutes);
 app.use(userRoutes);//user
+
