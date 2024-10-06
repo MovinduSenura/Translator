@@ -9,21 +9,34 @@ export default function TranslationHistory() {
   const [translations, setTranslations] = useState([]);
   const navigate = useNavigate();
 
+  
+  const userName = localStorage.getItem('userName');
+
+  console.log("User Name of : ", userName);
+  
   useEffect(() => {
     const fetchTranslations = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/allTranslations2');
-        setTranslations(response.data.AllTranslations);
+        const response = await axios.get(`http://localhost:8000/allTranslations2/${userName}`);
+        
+        // Check if response data has AllTranslations
+        if (response.data && response.data.data) {
+          setTranslations(response.data.data);
+        } else {
+          console.warn("No translations found in the response.");
+          setTranslations([]); // Set to empty array if no translations found
+        }
       } catch (error) {
         console.error('Error fetching translations:', error);
       }
     };
-
+  
     fetchTranslations();
   }, []);
+  
 
   const handleGoBack = () => {
-    navigate('/'); // Navigate back to TranslationPage
+    navigate(`/${userName}`); // Navigate back to TranslationPage
   };
 
   // Function to generate PDF
@@ -31,7 +44,7 @@ export default function TranslationHistory() {
     e.preventDefault();
     try {
       const response = await axios.get(
-        "http://localhost:8000/generateHistoryReport",
+        `http://localhost:8000/generateHistoryReport/${userName}`,
         
       );
 

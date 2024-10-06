@@ -29,22 +29,6 @@ const TranslatorPg = () => {
     // Fetch the translation
     const translation = await fetchTranslation(fromText, fromLang, toLang);
     setToText(translation);
-
-    // Save the translation to the history
-    const newTranslation = {
-      translation: {
-        english: fromText,
-        sinhala: translation, // assuming Sinhala is the output language
-      },
-    };
-
-    try {
-      await axios.post("http://localhost:8000/inputTranslation2", newTranslation); // This saves the translation
-      alert("Translation saved to history!");
-    } catch (error) {
-      console.error("Error saving translation:", error);
-      alert("Failed to save translation to history.");
-    }
   };
 
   const handleCopy = (text) => {
@@ -57,23 +41,27 @@ const TranslatorPg = () => {
     speechSynthesis.speak(utterance);
   };
 
-  const handleFavorite = async () => {
-    if (!fromText.trim() || !toText.trim()) return;
+  // const handleFavorite = () => {
+  //   if (!fromText.trim() || !toText.trim()) return;
 
-    const favoriteTranslation = {
-      translation: {
-        english: fromText,
-        sinhala: toText,
-      },
-    };
+  //   const favoriteTranslation = {
+  //     translation: {
+  //       english: fromText,
+  //       sinhala: toText,
+  //     },
+  //   };
 
-    try {
-      await axios.post("http://localhost:8000/inputTranslation", favoriteTranslation);
-      alert("Translation saved as favorite!");
-    } catch (error) {
-      console.error("Error saving translation:", error);
-      alert("Failed to save translation.");
-    }
+  //   try {
+  //     await axios.post("http://localhost:8000/inputTranslation", favoriteTranslation);
+  //     alert("Translation saved as favorite!");
+  //   } catch (error) {
+  //     console.error("Error saving translation:", error);
+  //     alert("Failed to save translation.");
+  //   }
+  // };
+
+  const directToLoginPage = () => {
+    navigate('/login'); // Navigate to login page
   };
 
   const navigateToSavedTranslations = () => {
@@ -137,28 +125,10 @@ const TranslatorPg = () => {
           </ul>
         </div>
         <button onClick={handleTranslate} className="translate-button">Translate Text</button>
-        <button onClick={handleFavorite} className="favorite-button">
+        <button onClick={directToLoginPage} className="favorite-button">
           ★ Save as Favorite
         </button>
-      </div>
-      
-      {/* Right Sidebar */}
-      <div className="w-64 bg-white shadow-md">
-        <div className="p-4">
-          <h2 className="text-xl font-bold">Quick Access</h2>
-          <button
-            onClick={navigateToSavedTranslations}
-            className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
-          >
-            Saved Translations
-          </button>
-          <button
-            onClick={navigateToHistory}
-            className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
-          >
-            Translation History
-          </button>
-        </div>
+        <p className="text-right mt-1"><a className='text-slate-500 hover:underline' href="/login">Send feedback</a></p>
       </div>
     </div>
   );

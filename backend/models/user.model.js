@@ -2,9 +2,6 @@ const bcrypt = require('bcryptjs');
 const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema({
-    profilePicture: {
-        type: String,
-    },
     userName: {
         type: String,
         required: true,

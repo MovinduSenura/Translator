@@ -1,41 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import UpdateTranslationPage from "./UpdateTranslationPage";
 
 export default function SavedTranslations() {
   const [translations, setTranslations] = useState([]);
+  const [docID, setDocID] = useState("");
   const navigate = useNavigate();
+
+  const userName = localStorage.getItem("userName");
+
+  console.log("User Name is : ", userName);
 
   useEffect(() => {
     const fetchTranslations = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/allTranslations');
+        const response = await axios.get(
+          `http://localhost:8000/allTranslations/${userName}`
+        );
         setTranslations(response.data.AllTranslations);
+        setDocID(response.data.documentId);
+        console.log("Translations:", response.data.documentId);
       } catch (error) {
-        console.error('Error fetching translations:', error);
+        console.error("Error fetching translations:", error);
       }
     };
 
     fetchTranslations();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (index) => {
     try {
-      await axios.delete(`http://localhost:8000/deleteSavedTranslation/${id}`);
-      setTranslations(translations.filter((translation) => translation._id !== id));
-      alert('Translation deleted successfully!');
+      // Make the DELETE request with both ID and index
+      await axios.delete(`http://localhost:8000/deleteSavedTranslation/${docID}/${index}`);
+      
+      alert("Translation deleted successfully!");
+      window.location.reload()
+      // Update the state to remove the deleted translation
+      setTranslations(translations.filter((translation) => translation._id !== docID));
+  
+      
     } catch (error) {
-      console.error('Error deleting translation:', error);
-      alert('Failed to delete translation.');
+      console.error("Error deleting translation:", error);
+      alert("Failed to delete translation.");
     }
   };
+  
 
-  const handleEdit = (id) => {
-    navigate(`/updateTranslationPage/${id}`);
+  console.log("Document ID :", docID);
+
+  const handleEdit = (index) => {
+    navigate(`/updateTranslationPage/${docID}/${index}`);
   };
 
   const handleGoBack = () => {
-    navigate('/'); // Navigate back to TranslationPage
+    navigate(`/${userName}`); // Navigate back to TranslationPage
   };
 
   return (
@@ -54,27 +73,41 @@ export default function SavedTranslations() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Input</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black tracking-wider">Output</th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
+                >
+                  Input
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-black tracking-wider"
+                >
+                  Output
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {translations.map((translation) => (
+              {translations.map((translation, index) => (
                 <tr key={translation._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation.english}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{translation.translation.sinhala}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {translation.english}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {translation.sinhala}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end space-x-2">
                       <button
-                        onClick={() => handleEdit(translation._id)}
-                        className="bg-green-700 text-white py-1 px-3 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700"
+                        onClick={() => handleEdit(index)} // Correct ID should be here
+                        className="bg-green-700 text-white py-1 px-3 rounded-md hover:bg-green-800"
                         aria-label="Edit Translation"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(translation._id)}
-                        className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        onClick={() => handleDelete(index)}
+                        className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600"
                         aria-label="Remove Translation"
                       >
                         Remove

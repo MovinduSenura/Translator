@@ -2,9 +2,11 @@ const savedTranslationsRouter = require("express").Router();
 const savedTranslationsCtrl = require("../controller/savedTranslations.controller");
 
 savedTranslationsRouter.post('/inputTranslation', savedTranslationsCtrl.inputTranslation);
-savedTranslationsRouter.get('/allTranslations', savedTranslationsCtrl.getAllTranslations);
-savedTranslationsRouter.get('/allTranslations/:id', savedTranslationsCtrl.getTranslationById); // Add this line
-savedTranslationsRouter.delete('/deleteSavedTranslation/:id', savedTranslationsCtrl.deleteSavedTranslations);
-savedTranslationsRouter.patch('/updateTranslation/:id', savedTranslationsCtrl.updateTranslation);
+savedTranslationsRouter.get('/allTranslations/:username', savedTranslationsCtrl.getAllTranslations);
+savedTranslationsRouter.patch('/updateTranslation/:id/:index', savedTranslationsCtrl.updateTranslation);
+savedTranslationsRouter.delete('/deleteSavedTranslation/:id/:index', savedTranslationsCtrl.deleteSavedTranslations);
+
+
+savedTranslationsRouter.get('/allTranslations/:id/:index', savedTranslationsCtrl.getTranslationById);//alter route for fetching
 
 module.exports = savedTranslationsRouter;

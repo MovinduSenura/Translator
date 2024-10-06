@@ -10,55 +10,84 @@ export default function UpdateTranslationPage() {
   const [toText, setToText] = useState('');
   const [fromLang, setFromLang] = useState('en-GB');
   const [toLang, setToLang] = useState('si-LK');
-  const { id } = useParams(); // Retrieve ID from URL parameters
+  const { index } = useParams(); // Retrieve both ID and index from the URL
   const navigate = useNavigate();
+
+  const [translations, setTranslations] = useState([]);
+  const [docID, setDocID] = useState("");
+  
+  const userName = localStorage.getItem("userName");
+
+  console.log("User Name is : ", userName);
+
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/allTranslations/${userName}`);
+        setTranslations(response.data.AllTranslations);
+        setDocID(response.data.documentId);
+        console.log("Translations:", response.data.documentId);
+      } catch (error) {
+        console.error("Error fetching translations:", error);
+      }
+    };
+
+    fetchTranslations();
+  }, [userName]);
+
+  console.log("Document ID :", docID);
 
   useEffect(() => {
     const fetchTranslationData = async () => {
+      if (!docID || !index) return; // Ensure both are available before fetching
       try {
-        console.log(`Fetching translation for ID: ${id}`); // Debugging log
-        const response = await axios.get(`http://localhost:8000/allTranslations/${id}`);
+        console.log(`Fetching translation for ID: ${docID} and Index: ${index}`); // Debugging log
+  
+        const response = await axios.get(`http://localhost:8000/allTranslations/${docID}/${index}`);
         console.log('API Response:', response.data); // Log the response data
+  
+        const translation = response.data.savedtranslation; // Assuming response includes the translation directly
 
-        // Access the nested translation
-        const translation = response.data.translation.translation; 
-
-        // Check if translation exists
+        console.log('Translation:', translation);
+  
         if (translation) {
-          setFromText(translation.english); // Set fromText to the English part
-          setToText(translation.sinhala); // Set toText to the Sinhala part
+          setFromText(translation.english);
+          setToText(translation.sinhala);
         } else {
-          console.error('Translation not found for ID:', id);
+          console.error('Translation not found for ID and Index:', docID, index);
         }
       } catch (error) {
         console.error('Error fetching translation:', error.response?.data || error.message);
         alert('Error fetching translation. Please try again later.');
       }
     };
-
+  
     fetchTranslationData();
-  }, [id]);
+  }, [docID, index]);
 
   const handleTranslate = async () => {
     if (!fromText.trim()) return;
 
-    // Start translating
     setToText("Translating...");
 
-    // Fetch the translation
     const translation = await fetchTranslation(fromText, fromLang, toLang);
     setToText(translation);
 
-    // Save the translation to the history
-    const newTranslation = {
-      translation: {
+    // Save the translation to the history array
+    const newTranslationsArray = [
+      {
         english: fromText,
-        sinhala: translation, // assuming Sinhala is the output language
+        sinhala: translation, // Assuming Sinhala is the output language
       },
+    ];
+
+    const newTranslation = {
+      username: userName,
+      translationHistory: newTranslationsArray, 
     };
 
     try {
-      await axios.post("http://localhost:8000/inputTranslation2", newTranslation); // This saves the translation
+      await axios.post("http://localhost:8000/inputTranslation2", newTranslation);
       alert("Translation saved to history!");
     } catch (error) {
       console.error("Error saving translation:", error);
@@ -72,11 +101,13 @@ export default function UpdateTranslationPage() {
 
   const handleSubmit = async () => {
     try {
-      await axios.patch(`http://localhost:8000/updateTranslation/${id}`, {
-        translation: {
+      // Change to fit the expected structure for the update API
+      await axios.patch(`http://localhost:8000/updateTranslation/${docID}/${index}`, {
+        username: userName, // Include the username if needed
+        savedtranslation: [{
           english: fromText,
           sinhala: toText,
-        },
+        }],
       });
       alert('Updated translation saved successfully!');
       navigate('/savedTranslations'); // Redirect to SavedTranslations page after update
@@ -118,7 +149,7 @@ export default function UpdateTranslationPage() {
           </div>
           <ul className="controls">
             <li className="row from">
-            <div className="icons">
+              <div className="icons">
                 <i className="fas fa-volume-up" onClick={() => handleSpeech(fromText, fromLang)}></i>
                 <i className="fas fa-copy" onClick={() => handleCopy(fromText)}></i>
               </div>

@@ -64,7 +64,7 @@ const UpdateFeedback = () => {
       await axios.put(`http://localhost:8000/updatefeedback/${id}`, feedback);
       setSuccess("Feedback updated successfully!");
       setError(""); // Clear the error message if any
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate("/feedbacks"), 1500);
     } catch (err) {
       console.error("Error updating feedback:", err);
       setError("Failed to update feedback.");
