@@ -4,17 +4,17 @@ const userModel = require("../models/user.model");
 
 //Register
 const registerUser = async (req, res) => {
-    const { profilePicture, userName, password, email } = req.body;
+    const { userName, password, email } = req.body;
 
     try {
-        if (!profilePicture || !userName || !password || !email) {
-            return res.status(400).send({ message: "profilePicture, userName, password, and email are required" });
+        if (!userName || !password || !email) {
+            return res.status(400).send({ message: " userName, password, and email are required" });
         }
         const existingUser = await userModel.findOne({ userName });
         if (existingUser) {
             return res.status(400).send({ message: "User already exists!" });
         }
-        const user = new userModel({ profilePicture, userName, password, email });
+        const user = new userModel({ userName, password, email });
         const data = await user.save();
         res.send({ message: "User added successfully!", data });
     } catch (err) {
@@ -40,7 +40,7 @@ const loginUser = async (req, res) => {
         const tokenPayload = { userName: user.userName, email: user.email, id: user._id };
         const token = jwt.sign(tokenPayload, '12345', { expiresIn: '12h' });
 
-        res.send({ message: "Login Successful!", token, Email: user.email, id: user._id });
+        res.send({ message: "Login Successful!", userName, token, Email: user.email, id: user._id });
     } catch (err) {
         console.error("Error logging in user:", err.message);
         res.status(500).send({ message: "An error occurred while logging in the user." });

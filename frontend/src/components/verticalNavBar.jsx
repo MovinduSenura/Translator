@@ -34,7 +34,7 @@ const VerticalNavBar = () => {
           <Link to="/viewWordslist" className="text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded flex items-center">
             <FontAwesomeIcon icon={faBook} className="mr-2 text-lg" /> Word List
           </Link>
-          <Link to="/feedbacks" className="text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded flex items-center">
+          <Link to="/viewFeedbackAdmin" className="text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded flex items-center">
             <FontAwesomeIcon icon={faComments} className="mr-2 text-lg" /> Feedbacks
           </Link>
         </nav>

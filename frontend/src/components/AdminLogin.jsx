@@ -4,12 +4,12 @@ import BgImg from "../images/loginwallpaper.png";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-export default function Login() {
+export default function AdminLogin() {
 
     const navigate = useNavigate();
 
     const [loginData, setLoginData] = useState({
-        userName: '',
+        username: '',
         password: ''
     });
 
@@ -26,22 +26,22 @@ export default function Login() {
     const loginUser = async (e) => {
         e.preventDefault();
 
-        if (!loginData.userName || !loginData.password) {
+        if (!loginData.username || !loginData.password) {
             setError('Username and Password are required.');
             return;
         }
 
         try {
-            const response = await axios.post("http://localhost:8000/login", loginData);
-            const { token, userName } = response.data;
+            const response = await axios.post("http://localhost:8000/adminlogin", loginData);
+            const { token, username } = response.data;
 
             localStorage.setItem('token', token);
-            localStorage.setItem('userName', userName);
+            localStorage.setItem('username', username);
 
-            console.log("Saved Role : ",userName)
+            console.log("Saved Role : ",username)
 
             alert("Login Successful!");
-            navigate(`/${userName}`);//linking
+            navigate(`/admindashboard/${username}`);//linking
         } catch (error) {
             console.log(error);
             setError(error.response?.data?.message || "Login Unsuccessful!");
@@ -59,11 +59,11 @@ export default function Login() {
                         <div>
                             <input
                                 type="text"
-                                name="userName"
-                                id="userName"
+                                name="username"
+                                id="username"
                                 placeholder="Enter username"
                                 onChange={handleChange}
-                                value={loginData.userName}
+                                value={loginData.username}
                                 className="block w-full rounded-md h-10 outline-0 ps-3 mb-5 bg-gray-200" />
                         </div>
                         <div>
@@ -82,7 +82,6 @@ export default function Login() {
                             className="w-full h-12 font-semibold text-lg px-5 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-600 transition-all mb-2 mt-7">
                             Login
                         </button>
-                        <p className='text-right'>No account yet? <a className='text-blue-600' href="/register">Register here</a></p>
                     </form>
                 </div>
             </div>

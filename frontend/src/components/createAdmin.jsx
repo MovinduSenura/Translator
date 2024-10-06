@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; 
-import VerticalNavBar from './verticalNavBar.jsx'; // Import the vertical navbar component
+import { useNavigate } from 'react-router-dom';
+import VerticalNavBar from './verticalNavBar.jsx'; 
 
 export default function CreateAdmin() {
   const [adminData, setAdminData] = useState({
@@ -12,7 +12,8 @@ export default function CreateAdmin() {
     password: '',
   });
 
-  const navigate = useNavigate(); 
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,14 +21,36 @@ export default function CreateAdmin() {
       ...adminData,
       [name]: value,
     });
+    setErrors({ ...errors, [name]: '' });  // Clear field error on input change
+  };
+
+  // Function to validate the form fields
+  const validateForm = () => {
+    let formErrors = {};
+    const { adminID, adminName, adminEmail, username, password } = adminData;
+
+    if (!adminID) formErrors.adminID = 'Admin ID is required';
+    if (!adminName) formErrors.adminName = 'Admin Name is required';
+    if (!adminEmail) formErrors.adminEmail = 'Admin Email is required';
+    if (!username) formErrors.username = 'Username is required';
+    if (!password) formErrors.password = 'Password is required';
+
+    return formErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:8000/createadmin', adminData);
       alert(response.data.message);
-  
+
       setAdminData({
         adminID: '',
         adminName: '',
@@ -38,16 +61,13 @@ export default function CreateAdmin() {
       navigate('/viewAllAdmins');
     } catch (error) {
       console.error(error);
-      alert('Failed to create admin.');
+      alert(error.response.data.message || 'Failed to create admin.');
     }
   };
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <VerticalNavBar />
-
-      {/* Main Content */}
       <div className="flex-1 flex items-center justify-center bg-gray-100 p-6">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-gray-700">Create Admin</h2>
@@ -61,8 +81,9 @@ export default function CreateAdmin() {
                 value={adminData.adminID}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
+                
               />
+              {errors.adminID && <p className="text-red-500 text-sm">{errors.adminID}</p>}
             </div>
             <div>
               <label htmlFor="adminName" className="block text-sm font-medium text-gray-600">Admin Name</label>
@@ -73,8 +94,9 @@ export default function CreateAdmin() {
                 value={adminData.adminName}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
+                
               />
+              {errors.adminName && <p className="text-red-500 text-sm">{errors.adminName}</p>}
             </div>
             <div>
               <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-600">Admin Email</label>
@@ -85,8 +107,9 @@ export default function CreateAdmin() {
                 value={adminData.adminEmail}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
+                
               />
+              {errors.adminEmail && <p className="text-red-500 text-sm">{errors.adminEmail}</p>}
             </div>
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-600">Username</label>
@@ -97,8 +120,9 @@ export default function CreateAdmin() {
                 value={adminData.username}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
+                
               />
+              {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-600">Password</label>
@@ -109,8 +133,9 @@ export default function CreateAdmin() {
                 value={adminData.password}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                required
+                
               />
+              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
             </div>
             <button
               type="submit"
