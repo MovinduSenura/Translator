@@ -157,11 +157,11 @@ const TranslatorPg = () => {
             className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
           >
             Translation History
-          </button>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-export default TranslatorPg;
+  export default TranslatorPg;
