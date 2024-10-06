@@ -14,7 +14,7 @@ const feedbackSchema = new Schema({
     },
 
     phone:{
-        type:Number,
+        type:String,
         required:true, //Validation
     },
 

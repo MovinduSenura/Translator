@@ -1,15 +1,13 @@
-
 const Feedback = require("../models/feedback.model");
 
 //add new feedback details
 const createfeedback = async (req, res) => {
   console.log("Received feedback data :", req.body);
 
-  const newFeedback= new Feedback(req.body);
+  const newFeedback = new Feedback(req.body);
 
   try {
     await newFeedback.save();
-
     res.status(201).json({ message: "Feedback Created Successfully" });
   } catch (error) {
     console.error(error);
@@ -19,11 +17,10 @@ const createfeedback = async (req, res) => {
 
 //retrieve all the feedback details
 const getAllFeedback = async (req, res) => {
-  const allFeedback = await Feedback.find();
-
   try {
-    if (!allFeedback) {
-      res.status(404).json({ message: "No Any Feedback Details" });
+    const allFeedback = await Feedback.find();
+    if (allFeedback.length === 0) {
+      return res.status(404).json({ message: "No Any Feedback Details" });
     }
 
     res.status(200).json({
@@ -42,9 +39,8 @@ const getFeedbackById = async (req, res) => {
 
   try {
     const feedback = await Feedback.findById(id);
-
     if (!feedback) {
-      res.status(404).json({ message: "Couldnt Find the Feedback" });
+      return res.status(404).json({ message: "Couldn't Find the Feedback" });
     }
 
     res.status(200).json({
@@ -65,9 +61,8 @@ const updateFeedbackById = async (req, res) => {
     const updateFeedback = await Feedback.findByIdAndUpdate(id, req.body, {
       new: true,
     });
-
     if (!updateFeedback) {
-      res.status(404).json({ message: "Couldn't Find the Feedback" });
+      return res.status(404).json({ message: "Couldn't Find the Feedback" });
     }
 
     res.status(200).json({
@@ -86,9 +81,8 @@ const deleteFeedbackById = async (req, res) => {
 
   try {
     const deleteFeedback = await Feedback.findByIdAndDelete(id);
-
     if (!deleteFeedback) {
-      res.status(404).json({ message: "Couldnt Find the Feedback" });
+      return res.status(404).json({ message: "Couldn't Find the Feedback" });
     }
 
     res.status(200).json({
@@ -101,10 +95,12 @@ const deleteFeedbackById = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
-    createfeedback,
-    getFeedbackById,
-    updateFeedbackById,
-    deleteFeedbackById,
-    getAllFeedback,
-  };
+  createfeedback,
+  getFeedbackById,
+  updateFeedbackById,
+  deleteFeedbackById,
+  getAllFeedback,
+};
