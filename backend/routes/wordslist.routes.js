@@ -7,5 +7,6 @@ wordslistrouter.get('/allwords',wordslistCtrl.getAllWords);
 wordslistrouter.get('/word/:id',wordslistCtrl.getWordById);
 wordslistrouter.put('/updateword/:id',wordslistCtrl.updateWordById);
 wordslistrouter.delete('/deleteword/:id',wordslistCtrl.deleteWordById);
+wordslistrouter.get('/generateWordListReport',wordslistCtrl.generateWordListReport);
 
 module.exports = wordslistrouter;

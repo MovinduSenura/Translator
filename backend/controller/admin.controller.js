@@ -16,51 +16,41 @@ const transporter = nodemailer.createTransport({
 
 // Add new admin details
 const createAdmin = async (req, res) => {
-  console.log("Received admin data:", req.body);
-
-  const newAdmin = new Admin(req.body);
+  const { adminID, username } = req.body;
 
   try {
+    // Check if adminID or username already exists
+    const existingAdmin = await Admin.findOne({ $or: [{ adminID }, { username }] });
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Admin ID or Username already exists.' });
+    }
+
+    const newAdmin = new Admin(req.body);
     await newAdmin.save();
 
-    // Send email to new admin
+    // Send email to new admin (same code as before)
     const mailOptions = {
-      from: 'translatortest95@gmail.com',  // Sender address
-      to: newAdmin.adminEmail,            // Receiver (new admin's email)
+      from: 'translatortest95@gmail.com',
+      to: newAdmin.adminEmail,
       subject: 'Welcome to Translator App - Admin Credentials',
-      text: `
-        Hello ${newAdmin.adminName},
-
-        You have been successfully added as an Admin for the Translator App.
-
-        Here are your login details:
-        Username: ${newAdmin.username}
-        Password: ${newAdmin.password}
-
-        Please keep this information safe and secure.
-
-        Welcome aboard!
-
-        Regards,
-        Translator App Team - CODEWAVES
-      `,
+      text: `Hello ${newAdmin.adminName},\n\nYou have been successfully added as an Admin for the Translator App.\n\nHere are your login details:\nUsername: ${newAdmin.username}\nPassword: ${newAdmin.password}\n\nPlease keep this information safe and secure.\n\nWelcome aboard!\n\nRegards,\nTranslator App Team - CODEWAVES`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Error sending email:', error);
-        res.status(500).json({ message: "Admin Created, but email sending failed." });
+        return res.status(500).json({ message: "Admin Created, but email sending failed." });
       } else {
-        console.log('Email sent: ' + info.response);
-        res.status(201).json({ message: "Admin Created Successfully and Email sent." });
+        return res.status(201).json({ message: "Admin Created Successfully and Email sent." });
       }
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Admin Creation Failed" });
+    return res.status(500).json({ message: "Admin Creation Failed" });
   }
 };
+
 
 //retrieve all the admin details
 const getAllAdmin = async (req, res) => {
@@ -105,44 +95,92 @@ const getAdminById = async (req, res) => {
 //Update admin by id
 const updateAdminById = async (req, res) => {
   const { id } = req.params;
+  const { adminID, username, adminName, adminEmail } = req.body;
 
   try {
+    // Check if adminID or username already exists in the database for another admin
+    const existingAdmin = await Admin.findOne({
+      $or: [{ adminID }, { username }],
+      _id: { $ne: id }, // Exclude the current admin by ID
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Admin ID or Username already exists.' });
+    }
+
+    // Proceed with updating the admin
     const updateAdmin = await Admin.findByIdAndUpdate(id, req.body, {
-      new: true,
+      new: true, // Return the updated document
     });
 
     if (!updateAdmin) {
-      res.status(404).json({ message: "Couldnt Find the Admin" });
+      return res.status(404).json({ message: "Couldn't Find the Admin" });
     }
 
+    // Send email to the updated admin
+    const mailOptions = {
+      from: 'translatortest95@gmail.com', // Your email address
+      to: adminEmail, // Send the email to the updated admin's email
+      subject: 'Your Admin Details Have Been Updated',
+      text: `Hello ${adminName},\n\nYour admin details have been successfully updated.\n\nHere are your updated details:\nAdmin ID: ${adminID}\nUsername: ${username}\n\nIf you did not request these changes, please contact us immediately.\n\nRegards,\nTranslator App Team - CODEWAVES`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: "Admin updated, but email notification failed." });
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
     res.status(200).json({
-      message: "Admin Data Successfully Updated",
+      message: "Admin Data Successfully Updated and Notification Sent",
       data: updateAdmin,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Admins's Data Updating Failed" });
+    res.status(500).json({ message: "Admin's Data Updating Failed" });
   }
 };
+
 
 //Delete admin by id
 const deleteAdminById = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Find the admin to delete (to get the admin details before deletion)
     const deleteAdmin = await Admin.findByIdAndDelete(id);
 
     if (!deleteAdmin) {
-      res.status(404).json({ message: "Couldnt Find the Contract" });
+      return res.status(404).json({ message: "Couldn't Find the Admin" });
     }
 
+    // Send email to the deleted admin
+    const mailOptions = {
+      from: 'translatortest95@gmail.com', // Your email address
+      to: deleteAdmin.adminEmail, // Send the email to the deleted admin's email
+      subject: 'Your Admin Account Has Been Deleted',
+      text: `Hello ${deleteAdmin.adminName},\n\nWe regret to inform you that your admin account has been deleted from the Translator App.\n\nIf you believe this is a mistake or if you have any questions, please contact us immediately.\n\nAdmin ID: ${deleteAdmin.adminID}\nUsername: ${deleteAdmin.username}\n\nRegards,\nTranslator App Team - CODEWAVES`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: "Admin Deleted, but email notification failed." });
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
     res.status(200).json({
-      message: "Admin Data Successfully Deleted",
+      message: "Admin Data Successfully Deleted and Email Notification Sent",
       data: deleteAdmin,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Admin's Data Deleting Failed" });
+    res.status(500).json({ message: "Admin's Data Deletion Failed" });
   }
 };
 
