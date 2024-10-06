@@ -39,25 +39,20 @@ app.listen(PORT, () => {
 //routes
 const adminRoutes = require('./routes/admin.routes');
 const wordslistRoutes = require('./routes/wordslist.routes');
+const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
+const translationHistoryRoutes = require('./routes/translationHistory.routes');
+const feedbackRoutes = require('./routes/feedback.routes');
+const userRoutes = require('./routes/user.routes');
+const EngAmbiRoutes = require('./routes/engAmbiguityWords.routes');
+const SinAmbiRoutes = require('./routes/sinAmbiguityWords.routes');
 
 //API Middleware
 app.use(adminRoutes);
 app.use(wordslistRoutes);
-
-
-
-// Routes
-const savedTranslationsRoutes = require('./routes/savedTranslations.routes');
-const translationHistoryRoutes = require('./routes/translationHistory.routes');
-
-// API Middleware
 app.use(savedTranslationsRoutes);
 app.use(translationHistoryRoutes);
-const feedbackRoutes = require('./routes/feedback.routes');
-const userRoutes = require('./routes/user.routes');//user
-
-//API Middleware
 app.use(savedTranslationsRoutes);
 app.use(feedbackRoutes);
-app.use(userRoutes);//user
-
+app.use(userRoutes);
+app.use(EngAmbiRoutes);
+app.use(SinAmbiRoutes);
