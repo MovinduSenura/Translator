@@ -5,6 +5,10 @@ const SinAmbiSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    sameSinWords: {
+        type: [String],
+        required: true
+    },
     engambiWords: {
         type: [String],
         required: true
