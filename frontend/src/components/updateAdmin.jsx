@@ -5,7 +5,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 export default function UpdateAdmin() {
   const { id } = useParams(); // Get the admin ID from the URL
   const navigate = useNavigate(); // For navigation after update
+
   const [adminData, setAdminData] = useState({
+    adminID: '',
+    adminName: '',
+    adminEmail: '',
+    username: '',
+    password: '',
+  });
+
+  const [errors, setErrors] = useState({
     adminID: '',
     adminName: '',
     adminEmail: '',
@@ -17,8 +26,6 @@ export default function UpdateAdmin() {
     const fetchAdmin = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/admin/${id}`);
-        console.log('Fetched admin data:', response.data);
-
         if (response.data && response.data.data) {
           setAdminData({
             adminID: response.data.data.adminID || '',
@@ -27,7 +34,6 @@ export default function UpdateAdmin() {
             username: response.data.data.username || '',
             password: response.data.data.password || '',
           });
-          console.log('Admin data set:', response.data.data);
         } else {
           console.error('Unexpected response format:', response.data);
         }
@@ -35,7 +41,6 @@ export default function UpdateAdmin() {
         console.error('Failed to fetch admin data:', error);
       }
     };
-
     fetchAdmin();
   }, [id]);
 
@@ -45,17 +50,58 @@ export default function UpdateAdmin() {
       ...prevState,
       [name]: value,
     }));
+    setErrors((prevState) => ({
+      ...prevState,
+      [name]: '', // Reset errors when user types
+    }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    let newErrors = {};
+
+    if (!adminData.adminID.trim()) {
+      newErrors.adminID = 'Admin ID is required';
+      valid = false;
+    }
+    if (!adminData.adminName.trim()) {
+      newErrors.adminName = 'Admin Name is required';
+      valid = false;
+    }
+    if (!adminData.adminEmail.trim()) {
+      newErrors.adminEmail = 'Admin Email is required';
+      valid = false;
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(adminData.adminEmail)) {
+      newErrors.adminEmail = 'Invalid email format';
+      valid = false;
+    }
+    if (!adminData.username.trim()) {
+      newErrors.username = 'Username is required';
+      valid = false;
+    }
+    if (!adminData.password.trim()) {
+      newErrors.password = 'Password is required';
+      valid = false;
+    } else if (adminData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.put(`http://localhost:8000/updateadmin/${id}`, adminData);
-      alert('Admin updated successfully');
-      navigate('/viewAllAdmins');
-    } catch (error) {
-      console.error('Failed to update admin:', error);
-      alert('Failed to update admin');
+    if (validateForm()) {
+      try {
+        await axios.put(`http://localhost:8000/updateadmin/${id}`, adminData);
+        alert('Admin updated successfully');
+        navigate('/viewAllAdmins');
+      } catch (error) {
+        console.error('Failed to update admin:', error);
+        alert('Failed to update admin');
+      }
     }
   };
 
@@ -73,8 +119,9 @@ export default function UpdateAdmin() {
               value={adminData.adminID}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
+              
             />
+            {errors.adminID && <p className="text-red-500 text-sm">{errors.adminID}</p>}
           </div>
           <div>
             <label htmlFor="adminName" className="block text-sm font-medium text-gray-600">Admin Name</label>
@@ -85,8 +132,9 @@ export default function UpdateAdmin() {
               value={adminData.adminName}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
+              
             />
+            {errors.adminName && <p className="text-red-500 text-sm">{errors.adminName}</p>}
           </div>
           <div>
             <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-600">Admin Email</label>
@@ -97,8 +145,9 @@ export default function UpdateAdmin() {
               value={adminData.adminEmail}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
+              
             />
+            {errors.adminEmail && <p className="text-red-500 text-sm">{errors.adminEmail}</p>}
           </div>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-600">Username</label>
@@ -109,8 +158,9 @@ export default function UpdateAdmin() {
               value={adminData.username}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
+              
             />
+            {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-600">Password</label>
@@ -121,8 +171,9 @@ export default function UpdateAdmin() {
               value={adminData.password}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
+              
             />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
           </div>
           <button
             type="submit"

@@ -100,7 +100,7 @@ export default function ViewWordList() {
 
       {/* Main Content */}
       <div className="flex-1 p-6 bg-gray-100">
-        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="w-full bg-white shadow-md rounded-lg overflow-hidden">
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="text-2xl font-bold">Word List</h2>
             <div>
