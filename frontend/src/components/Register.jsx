@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import BgImg from "../images/bg.jpg";
+import BgImg from "../images/loginwallpaper.png";
 import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
@@ -68,8 +68,8 @@ export default function Register() {
             <div className="w-full md:w-1/3 p-10 flex items-center justify-center bg-white shadow-lg">
                 <div className="w-full max-w-md">
                     <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Register</h2>
-                    <form onSubmit={registerUser} className="space-y-6">
-                        Enter image URL :
+                    <form onSubmit={registerUser}>
+                        {/* Enter image URL :
 
                         <div>
                             <input
@@ -78,7 +78,7 @@ export default function Register() {
                                 placeholder="Enter profile picture URL"
                                 onChange={handleChange}
                                 className="block w-full rounded-md h-10 outline-0 ps-3 mb-5 bg-gray-200" />
-                        </div>
+                        </div> */}
                         
                         <div>
                         Enter Username :
@@ -115,7 +115,7 @@ export default function Register() {
                                 </p>
                             </div>
                         </center>
-                        <div>
+                        <div className='mt-4'>
                             Enter Email :
                             <input
                                 type="email"
@@ -126,17 +126,22 @@ export default function Register() {
                         </div>
                         <button
                             type="submit"
-                            className="w-full h-12 font-semibold text-lg px-5 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-600 transition-all">
+                            className="w-full h-12 font-semibold text-lg px-5 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-600 transition-all mb-2 mt-7">
                             Register
                         </button>
+                        <p className='text-right'>Already have an account? <a className='text-blue-600' href="/login">Login here</a></p>
                     </form>
                 </div>
             </div>
     
             {/* Right Side - Background Image */}
-            <div className="hidden md:block md:w-2/3 bg-cover bg-center" style={{ backgroundImage: `url(${BgImg})` }}>
-                {/* Optional content inside the illustration area */}
-            </div>
+            {/* <div className="hidden md:block md:w-2/3 bg-cover bg-center" style={{ backgroundImage: `url(${BgImg})` }}>
+                {/* Optional content inside the illustration area 
+            </div> */}
+
+            <div className="hidden md:block md:w-2/3 bg-cover bg-right" style={{ backgroundImage: `url(${BgImg})` }}>
+                {/* Optional content inside the illustration */}
+            </div> 
         </div>
     );
     

@@ -1,122 +1,159 @@
 const translationHistoryModel = require("../models/translationHistory.model");
-const pdfCreator = require('pdf-creator-node');
-const fs = require('fs'); //Use Node.js's fs module to delete the file from the filesystem.
-const path = require('path');
-const moment = require("moment"); //Use for format date and time
+const pdfCreator = require("pdf-creator-node");
+const fs = require("fs");
+const path = require("path");
+const moment = require("moment");
 
+// Input translations (handles multiple translations)
 const inputTranslation = async (req, res) => {
-    const { translation } = req.body;
+  const { username, translationHistory } = req.body; // Expecting an array of translations
 
-    try {
-        if (!translation || !translation.english || !translation.sinhala) {
-            return res.status(400).send({ message: "Both English and Sinhala translations are required" });
-        }
-
-        const newTranslation = new translationHistoryModel({
-            english: translation.english,
-            sinhala: translation.sinhala,
-        });
-
-        const savedTranslation = await newTranslation.save();
-        res.status(200).send({ message: "Translation saved successfully!", data: savedTranslation });
-    } catch (err) {
-        console.error("Translation input error:", err.message);
-        res.status(500).send({ message: "An error occurred while inputting translation." });
-    }
-}
-
-const getAllTranslations = async (req, res) => {
-    try {
-        const allTranslations = await translationHistoryModel.find();
-        res.status(200).send({
-            status: true,
-            message: "✨ :: All translations are fetched",
-            AllTranslations: allTranslations,
-        });
-    } catch (err) {
-        res.status(500).send({
-            status: false,
-            message: err.message,
+  try {
+    // Validate that username and translationHistory are present
+    if (
+      !username ||
+      !translationHistory ||
+      !Array.isArray(translationHistory) ||
+      translationHistory.length === 0
+    ) {
+      return res
+        .status(400)
+        .send({
+          message:
+            "Username and a non-empty array of translations are required.",
         });
     }
-}
 
-const generateHistoryReport = async (req, res) => {
-    try {
-        // Read the HTML template for the invoice
-        const htmlTemplate = fs.readFileSync(path.join(__dirname, '../template/historyReportTemplate.html'), 'utf-8');
-
-        // Generate a timestamp for the filename
-        const timestamp = moment().format('YYYY_MMMM_DD_HH_mm_ss');
-        const filename = `Translation_History_Report_${timestamp}_doc.pdf`;
-
-        // Fetch all items from the database
-        const words = await translationHistoryModel.find({});
-
-        // Initialize an array to hold the transformed items
-        let wordsArray = [];
-
-        // Transform each item and add it to the array
-        words.forEach(i => {
-            // Convert menuItemAvailability from true/false to "Yes"/"No"
-            // const menuItemAvailability = i.menuItemAvailability ? "Yes" : "No";
-
-            const trwo = {
-                english: i.english,
-                sinhala: i.sinhala,
-            };
-
-            // Push the transformed item into the array
-            wordsArray.push(trwo);
-        });
-
-        // Calculate the logo path and load the logo image asynchronously
-        // const logoPath = path.join(__dirname, '../template/images/logo.png');
-        // const logoBuffer = await fs.promises.readFile(logoPath);
-        // Encode the logo buffer to base64
-        // const logoBase64 = logoBuffer.toString('base64');
-
-        // Set the PDF options
-        const options = {
-            format: 'A4',
-            orientation: 'portrait',
-            border: '10mm',
-            header: {
-                height: '0mm',
-            },
-            footer: {
-                height: '0mm',
-            },
-            zoomFactor: '1.0',
-            type: 'buffer',
-        };
-
-        // Create the document object with the HTML template, data, and file path
-        const document = {
-            html: htmlTemplate,
-            data: {
-                wordsArray,
-                // logoBuffer: logoBase64,
-            },
-            path: `./docs/${filename}`,
-        };
-
-        // Generate the PDF and save it to the specified path
-        const pdfBuffer = await pdfCreator.create(document, options);
-
-        // Build the file path URL for the response
-        const filepath = `http://localhost:8000/docs/${filename}`;
-
-        // Send the file path in the response
-        res.status(200).json({ filepath });
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        res.status(500).send('Internal Server Error');
+    // Validate that each translation object contains both english and sinhala
+    for (const translation of translationHistory) {
+      if (!translation.english || !translation.sinhala) {
+        return res
+          .status(400)
+          .send({
+            message:
+              "Each translation must have both English and Sinhala fields.",
+          });
+      }
     }
+
+    // Find the user's translation history
+    let userHistory = await translationHistoryModel.findOne({ username });
+
+    if (!userHistory) {
+      // If no history exists, create a new record
+      userHistory = new translationHistoryModel({
+        username,
+        translationHistory,
+      });
+    } else {
+      // If history exists, add the new translations to the history array
+      userHistory.translationHistory.push(...translationHistory);
+    }
+
+    // Save the updated history
+    const savedTranslationHistory = await userHistory.save();
+    res
+      .status(200)
+      .send({
+        message: "Translations saved successfully!",
+        data: savedTranslationHistory,
+      });
+  } catch (err) {
+    console.error("Translation input error:", err.message);
+    res
+      .status(500)
+      .send({ message: "An error occurred while saving translations." });
+  }
 };
 
+// Get all translations for a user
+const getAllTranslations = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const history = await translationHistoryModel.findOne({ username });
+
+    if (!history) {
+      return res
+        .status(404)
+        .json({
+          status: false,
+          message: "No translation history found for the user.",
+        });
+    }
+
+    return res
+      .status(200)
+      .json({ status: true, data: history.translationHistory });
+  } catch (error) {
+    console.error("Error fetching translation history:", error);
+    return res.status(500).json({ status: false, message: "Server error." });
+  }
+};
+
+// Generate PDF report for user's translation history
+const generateHistoryReport = async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      // Read the HTML template for the PDF
+      const htmlTemplate = fs.readFileSync(
+        path.join(__dirname, "../template/historyReportTemplate.html"),
+        "utf-8"
+      );
+      
+      const timestamp = moment().format("YYYY_MMMM_DD_HH_mm_ss");
+      const filename = `Translation_History_Report_${timestamp}_doc.pdf`;
+  
+      // Fetch the user's translation history
+      const userHistory = await translationHistoryModel.findOne({ username });
+  
+      if (!userHistory) {
+        return res.status(404).send({
+          status: false,
+          message: "No translation history found for the user.",
+        });
+      }
+  
+      // Prepare data for the PDF
+      const wordsArray = userHistory.translationHistory.map((translation) => ({
+        english: translation.english,
+        sinhala: translation.sinhala,
+        createdAt: moment(translation.createdAt).format('YYYY-MM-DD HH:mm:ss'), // Format the createdAt date
+      }));
+  
+      // Define PDF options
+      const options = {
+        format: "A4",
+        orientation: "portrait",
+        border: "10mm",
+        header: { height: "0mm" },
+        footer: { height: "0mm" },
+        zoomFactor: "1.0",
+        type: "buffer",
+      };
+  
+      // Create the document structure for the PDF
+      const document = {
+        html: htmlTemplate,
+        data: { wordsArray },
+        path: `./docs/${filename}`, // Save path for the generated PDF
+      };
+  
+      // Generate the PDF
+      await pdfCreator.create(document, options);
+      const filepath = `http://localhost:8000/docs/${filename}`; // Link to access the PDF
+  
+      res.status(200).json({ filepath });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  };
+  
+
 module.exports = {
-    inputTranslation,
-    getAllTranslations,
-    generateHistoryReport,
-}
+  inputTranslation,
+  getAllTranslations,
+  generateHistoryReport,
+};

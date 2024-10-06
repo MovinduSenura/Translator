@@ -14,19 +14,22 @@ import SavedTranslations from "./components/SavedTranslations";
 import TranslationHistory from "./components/TranslationHistory";
 import UpdateTranslationPage from "./components/UpdateTranslationPage";
 import TranslatorPg from "./components/TranslatorPg";
-import FeedbackList from "./components/FeedbackList";
-import CreateFeedback from "./components/CreateFeedbacks";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
+import LoggedTranslatorPg from "./components/LoggedTranslatorPg";
+import FeedbackList from "./components/FeedbackList";
+import CreateFeedback from "./components/CreateFeedbacks";
 import UpdateFeedback from "./components/UpdateFeedback";
+import UserFeedbackList from "./components/UserFeedbackList";
+import AdminLogin from "./components/adminLogin";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AdminDashboard />} />
+          <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/createAdmin" element={<CreateAdmin />} />
           <Route path="/viewAllAdmins" element={<ViewAllAdmins />} />
           <Route path="/updateAdmin/:id" element={<UpdateAdmin />} />
@@ -36,11 +39,12 @@ function App() {
           <Route path="/updateWord/:id" element={<UpdateWord />} />
 
           <Route path="/" element={<TranslatorPg />} />
+          <Route path="/:Role" element={<LoggedTranslatorPg />} />
           {/* <Route path='/translationPage' element={<TranslationPage />} /> */}
           <Route path="/savedTranslations" element={<SavedTranslations />} />
           <Route path="/translationHistory" element={<TranslationHistory />} />
           <Route
-            path="/updateTranslationPage/:id"
+            path="/updateTranslationPage/:docID/:index"
             element={<UpdateTranslationPage />}
           />
           {/* <Route path='/translatorPg' element={<TranslatorPg />} /> */}
@@ -52,8 +56,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* <Route path="/feedbacks" element={<UserFeedbackList />} /> */}
-          <Route path="/update-feedback/:id" element={<UpdateFeedback />} />
+          <Route path="/feedbacks" element={<UserFeedbackList />} />
+          <Route path="/updatefeedback/:id" element={<UpdateFeedback />} />
+
+          <Route path="/adminlogin" element={<AdminLogin/>} />
 
           {/* <Route path='/' element={<TranslationPage />} /> */}
         </Routes>
