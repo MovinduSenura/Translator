@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./TranslatorPg.css";
 import Countries from "./Countries.jsx";
 import { fetchTranslation } from "./Script.jsx"; // Import fetchTranslation function
@@ -10,7 +10,78 @@ const TranslatorPg = () => {
   const [toText, setToText] = useState("");
   const [fromLang, setFromLang] = useState("en-GB");
   const [toLang, setToLang] = useState("si-LK");
+  const [ambiEngWords, setAmbiEngWords] = useState([]);
+  const [ambiSinWords, setAmbiSinWords] = useState([]);
+  const [sameEngWords, setSameEngWords] = useState([]); // New state for same English words
+  const [sameSinWords, setSameSinWords] = useState([]); // New state for same Sinhala words
+  const [showAmbiPopup, setShowAmbiPopup] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [matchedAmbiWords, setMatchedAmbiWords] = useState([]);
   const navigate = useNavigate(); // Hook for navigation
+
+  useEffect(() => {
+    if (showAmbiPopup) {
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 100); // Delay before showing, adjust as needed
+      return () => clearTimeout(timer); // Cleanup the timer
+    } else {
+      setIsVisible(false); // Hide if condition is false
+    }
+  }, [showAmbiPopup]);
+
+  // Fetch ambiguous words (both English and Sinhala)
+  useEffect(() => {
+    const fetchAmbiWords = async () => {
+      try {
+        const engResponse = await axios.get("http://localhost:8000/ambiengwords");
+        setAmbiEngWords(engResponse.data.data);  // Set English ambiguous words
+
+        const sinResponse = await axios.get("http://localhost:8000/ambisinwords");
+        setAmbiSinWords(sinResponse.data.data);  // Set Sinhala ambiguous words
+
+        console.log("Fetched Ambiguous Words:", {
+          english: engResponse.data.data,
+          sinhala: sinResponse.data.data,
+        });
+      } catch (error) {
+        console.error("Error fetching ambiguous words:", error);
+      }
+    };
+
+    fetchAmbiWords();
+  }, []);
+
+  const checkAmbiguity = (inputText, lang) => {
+    const words = inputText.split(" ");
+    const lastWord = words[words.length - 1]; // Get the last word entered
+
+    if (lang === "en-GB") {
+      const foundEngAmbiguousWord = ambiEngWords.find(
+        (wordObj) => wordObj.engWord === lastWord
+      );
+      if (foundEngAmbiguousWord) {
+        setSameEngWords(foundEngAmbiguousWord.sameEngWords || []); // Set same English words
+        setShowAmbiPopup(true);
+        console.log("Ambiguity found in English:", lastWord);
+        return;
+      }
+    } else if (lang === "si-LK") {
+      const foundSinAmbiguousWord = ambiSinWords.find(
+        (wordObj) => wordObj.sinWord === lastWord
+      );
+      if (foundSinAmbiguousWord) {
+        setSameSinWords(foundSinAmbiguousWord.sameSinWords || []); // Set same Sinhala words
+        setShowAmbiPopup(true);
+        console.log("Ambiguity found in Sinhala:", lastWord);
+        return;
+      }
+    }
+
+    setShowAmbiPopup(false);
+    console.log("No ambiguous word found.");
+  };
+
 
   const handleExchange = () => {
     setFromText(toText);
@@ -29,22 +100,6 @@ const TranslatorPg = () => {
     // Fetch the translation
     const translation = await fetchTranslation(fromText, fromLang, toLang);
     setToText(translation);
-
-    // Save the translation to the history
-    const newTranslation = {
-      translation: {
-        english: fromText,
-        sinhala: translation, // assuming Sinhala is the output language
-      },
-    };
-
-    try {
-      await axios.post("http://localhost:8000/inputTranslation2", newTranslation); // This saves the translation
-      alert("Translation saved to history!");
-    } catch (error) {
-      console.error("Error saving translation:", error);
-      alert("Failed to save translation to history.");
-    }
   };
 
   const handleCopy = (text) => {
@@ -57,23 +112,27 @@ const TranslatorPg = () => {
     speechSynthesis.speak(utterance);
   };
 
-  const handleFavorite = async () => {
-    if (!fromText.trim() || !toText.trim()) return;
+  // const handleFavorite = () => {
+  //   if (!fromText.trim() || !toText.trim()) return;
 
-    const favoriteTranslation = {
-      translation: {
-        english: fromText,
-        sinhala: toText,
-      },
-    };
+  //   const favoriteTranslation = {
+  //     translation: {
+  //       english: fromText,
+  //       sinhala: toText,
+  //     },
+  //   };
 
-    try {
-      await axios.post("http://localhost:8000/inputTranslation", favoriteTranslation);
-      alert("Translation saved as favorite!");
-    } catch (error) {
-      console.error("Error saving translation:", error);
-      alert("Failed to save translation.");
-    }
+  //   try {
+  //     await axios.post("http://localhost:8000/inputTranslation", favoriteTranslation);
+  //     alert("Translation saved as favorite!");
+  //   } catch (error) {
+  //     console.error("Error saving translation:", error);
+  //     alert("Failed to save translation.");
+  //   }
+  // };
+
+  const directToLoginPage = () => {
+    navigate('/login'); // Navigate to login page
   };
 
   const navigateToSavedTranslations = () => {
@@ -88,13 +147,52 @@ const TranslatorPg = () => {
     <div className="translator-page">
       <div className="container">
         <div className="wrapper">
-          <div className="text-input">
+          <div className="text-input relative">
+            {showAmbiPopup && (
+              <div className="relative flex justify-center">
+                <div
+                  className={`absolute -top-20 flex flex-col items-center transition-all duration-200 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                    }`}
+                >
+                  <div className="w-40 bg-slate-100 rounded-lg text-center grid grid-cols-1 gap-1">
+                    {matchedAmbiWords.map((word, index) => (
+                      <React.Fragment key={`matched-${index}`}>
+                        <button className="py-1">
+                          {word}
+                        </button>
+                        <hr />
+                      </React.Fragment>
+                    ))}
+                    {sameEngWords.map((word, index) => (
+                      <React.Fragment key={`same-eng-${index}`}>
+                        <button className="py-1">
+                          {word}
+                        </button>
+                        <hr />
+                      </React.Fragment>
+                    ))}
+                    {sameSinWords.map((word, index) => (
+                      <React.Fragment key={`same-sin-${index}`}>
+                        <button className="py-1">
+                          {word}
+                        </button>
+                        <hr />
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <div className="w-4 h-5 border-l-8 border-r-8 border-t-8 border-transparent border-t-slate-200"></div>
+                </div>
+              </div>
+            )}
             <textarea
               spellCheck="false"
               className="from-text"
               placeholder="Enter text"
               value={fromText}
-              onChange={(e) => setFromText(e.target.value)}
+              onChange={(e) => {
+                setFromText(e.target.value);
+                checkAmbiguity(e.target.value, fromLang);
+              }}
             ></textarea>
             <textarea
               spellCheck="false"
@@ -137,28 +235,10 @@ const TranslatorPg = () => {
           </ul>
         </div>
         <button onClick={handleTranslate} className="translate-button">Translate Text</button>
-        <button onClick={handleFavorite} className="favorite-button">
+        <button onClick={directToLoginPage} className="favorite-button">
           ★ Save as Favorite
         </button>
-      </div>
-      
-      {/* Right Sidebar */}
-      <div className="w-64 bg-white shadow-md">
-        <div className="p-4">
-          <h2 className="text-xl font-bold">Quick Access</h2>
-          <button
-            onClick={navigateToSavedTranslations}
-            className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
-          >
-            Saved Translations
-          </button>
-          <button
-            onClick={navigateToHistory}
-            className="mt-4 w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600"
-          >
-            Translation History
-          </button>
-        </div>
+        <p className="text-right mt-1"><a className='text-slate-500 hover:underline' href="/login">Send feedback</a></p>
       </div>
     </div>
   );

@@ -23,6 +23,9 @@ import CreateFeedback from "./components/CreateFeedbacks";
 import UpdateFeedback from "./components/UpdateFeedback";
 import UserFeedbackList from "./components/UserFeedbackList";
 import AdminLogin from "./components/adminLogin";
+import AddEngAmbiguous from "./components/Ambiguity/AddEngAmbiguous";
+import AddSinAmbiguous from "./components/Ambiguity/AddSinAmbiguous";
+import AddAmbiguous from "./components/Ambiguity/AddAmbiguous";
 
 function App() {
   return (
@@ -59,9 +62,14 @@ function App() {
           <Route path="/feedbacks" element={<UserFeedbackList />} />
           <Route path="/updatefeedback/:id" element={<UpdateFeedback />} />
 
-          <Route path="/adminlogin" element={<AdminLogin/>} />
+          <Route path="/adminlogin" element={<AdminLogin />} />
 
           {/* <Route path='/' element={<TranslationPage />} /> */}
+          {/* Ambiguos Routes */}
+          <Route path="/insert-englishambiguous" element={<AddEngAmbiguous />} />
+          <Route path="/insert-sinhalaambiguous" element={<AddSinAmbiguous />} />
+          <Route path="/insert-ambiguous" element={<AddAmbiguous />} />
+
         </Routes>
       </BrowserRouter>
     </>
