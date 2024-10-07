@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default function AddSinAmbiguous() {
   const [sinWord, setSinWord] = useState("");
+  const [sameSinWords, setSameSinWords] = useState([""]); // Handle same Sinhala words
   const [engambiWords, setEngambiWords] = useState([""]);
   const [entries, setEntries] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -25,20 +26,30 @@ export default function AddSinAmbiguous() {
     fetchEntries();
   }, []);
 
+  const handleSameSinWordChange = (index, event) => {
+    const newSameSinWords = [...sameSinWords];
+    newSameSinWords[index] = event.target.value;
+    setSameSinWords(newSameSinWords);
+  };
+
   const handleEngambiWordChange = (index, event) => {
     const newEngambiWords = [...engambiWords];
     newEngambiWords[index] = event.target.value;
     setEngambiWords(newEngambiWords);
   };
 
-  const handleAddField = () => {
+  const handleAddSameSinField = () => {
+    setSameSinWords([...sameSinWords, ""]);
+  };
+
+  const handleAddEngambiField = () => {
     setEngambiWords([...engambiWords, ""]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newWord = { sinWord, engambiWords };
+    const newWord = { sinWord, sameSinWords, engambiWords };
 
     if (editingIndex === null) {
       // Add new entry (CREATE)
@@ -70,12 +81,14 @@ export default function AddSinAmbiguous() {
 
     // Clear form
     setSinWord("");
+    setSameSinWords([""]);
     setEngambiWords([""]);
     setIsAdding(false);
   };
 
   const handleEdit = (index) => {
     setSinWord(entries[index].sinWord);
+    setSameSinWords(entries[index].sameSinWords);  // Load sameSinWords for editing
     setEngambiWords(entries[index].engambiWords);
     setEditingIndex(index);
     setIsAdding(true);  // Show form for editing
@@ -95,6 +108,7 @@ export default function AddSinAmbiguous() {
   const toggleAddForm = () => {
     setIsAdding(!isAdding);
     setSinWord("");
+    setSameSinWords([""]);  // Reset sameSinWords
     setEngambiWords([""]);
     setEditingIndex(null);  // Reset editing state
   };
@@ -120,6 +134,7 @@ export default function AddSinAmbiguous() {
           <thead>
             <tr className="bg-green-500 text-white">
               <th className="p-2 border">Sinhala Word</th>
+              <th className="p-2 border">Same Sinhala Words</th>
               <th className="p-2 border">English Ambiguous Words</th>
               <th className="p-2 border">Actions</th>
             </tr>
@@ -130,6 +145,7 @@ export default function AddSinAmbiguous() {
               entries.map((entry, index) => (
                 <tr key={index} className="border-b">
                   <td className="p-2 border">{entry.sinWord}</td>
+                  <td className="p-2 border">{entry.sameSinWords.join(", ")}</td>
                   <td className="p-2 border">{entry.engambiWords.join(", ")}</td>
                   <td className="p-2 border inline-flex w-full space-x-4">
                     <button
@@ -173,6 +189,29 @@ export default function AddSinAmbiguous() {
             </div>
 
             <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Same Sinhala Words</label>
+              {sameSinWords.map((word, index) => (
+                <div key={index} className="flex items-center mb-3">
+                  <input
+                    type="text"
+                    value={word}
+                    onChange={(e) => handleSameSinWordChange(index, e)}
+                    required
+                    className="w-full p-3 border border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder={`Enter same Sinhala word ${index + 1}`}
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddSameSinField}
+                className="flex items-center text-green-500 hover:text-green-600 font-semibold"
+              >
+                <FaPlus className="mr-2" /> Add Another Same Sinhala Word
+              </button>
+            </div>
+
+            <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 English Ambiguous Words
               </label>
@@ -190,19 +229,21 @@ export default function AddSinAmbiguous() {
               ))}
               <button
                 type="button"
-                onClick={handleAddField}
+                onClick={handleAddEngambiField}
                 className="flex items-center text-green-500 hover:text-green-600 font-semibold"
               >
-                <FaPlus className="mr-2" /> Add Another Word
+                <FaPlus className="mr-2" /> Add Another English Ambiguous Word
               </button>
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all"
-            >
-              {editingIndex !== null ? "Update Word" : "Add Word"}
-            </button>
+            <div>
+              <button
+                type="submit"
+                className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all"
+              >
+                {editingIndex !== null ? "Update Word" : "Add Word"}
+              </button>
+            </div>
           </form>
         )}
       </div>
