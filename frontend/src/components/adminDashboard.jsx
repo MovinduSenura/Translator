@@ -61,7 +61,7 @@ const AdminDashboard = () => {
 
           <div 
             className="bg-white p-6 rounded-lg shadow-lg cursor-pointer flex items-center space-x-6 min-h-[200px]"  
-            onClick={() => handleCardClick('/viewFeedbackAdmin')}
+            onClick={() => handleCardClick('/feedbacklist')}
           >
             <FontAwesomeIcon icon={faComments} className="text-gray-500 text-5xl" /> 
             <div>
